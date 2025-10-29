@@ -12,8 +12,8 @@
 
 ## URL
 - **개발 환경**: https://3000-id2t922z2g8wj37uv5fbm-2e1b9533.sandbox.novita.ai
+- **GitHub**: https://github.com/QtaeRoh/q-project
 - **Production**: (배포 후 업데이트 예정)
-- **GitHub**: (저장소 생성 후 업데이트 예정)
 
 ## 데이터 아키텍처
 
