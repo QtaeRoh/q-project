@@ -34,13 +34,15 @@ interface EmergencyRoom {
 }
 ```
 
-### 저장소 서비스
-- **현재**: 샘플 데이터 (메모리 기반)
-- **계획**: Cloudflare D1 데이터베이스 또는 실시간 크롤링 시스템
+### 데이터 소스
+- **공공데이터포털 API**: 국립중앙의료원 응급의료기관 실시간 정보 (선택 사항)
+- **샘플 데이터**: API 키 미설정 시 샘플 데이터 사용 (기본값)
 
 ### 데이터 흐름
 1. 사용자가 위치(위도/경도)와 중증도를 입력한다
 2. `/api/emergency-rooms` 엔드포인트에서 응급실 목록을 가져온다
+   - API 키가 설정된 경우: 공공데이터포털 API에서 실시간 데이터 조회
+   - API 키가 없는 경우: 샘플 데이터 반환
 3. 각 병원까지의 거리를 Haversine 공식으로 계산한다
 4. 평균 속도(30km/h)로 예상 소요시간을 계산한다
 5. 추천 알고리즘으로 각 병원의 점수를 산출한다
@@ -176,27 +178,58 @@ return round(finalScore × 100)  // 0-100점
 }
 ```
 
+## 공공데이터 API 연동 설정
+
+### 1. API 키 발급
+1. [공공데이터포털](https://www.data.go.kr/) 회원가입 및 로그인
+2. [응급의료기관 정보 조회 서비스](https://www.data.go.kr/data/15000563/openapi.do) 페이지 접속
+3. "활용신청" 버튼 클릭하여 API 키 발급 신청
+4. 승인 후 마이페이지에서 발급된 인증키(serviceKey) 확인
+
+### 2. 로컬 개발 환경 설정
+```bash
+# .dev.vars 파일 생성 (루트 디렉토리)
+cp .dev.vars.example .dev.vars
+
+# .dev.vars 파일 수정
+EMERGENCY_API_KEY=발급받은_인증키
+```
+
+### 3. Production 환경 설정
+```bash
+# Cloudflare Pages Secret 설정
+wrangler pages secret put EMERGENCY_API_KEY --project-name emergency-room-finder
+
+# 또는 Cloudflare Dashboard에서 설정
+# Settings > Environment variables > Add variable
+# Name: EMERGENCY_API_KEY
+# Value: 발급받은_인증키
+```
+
+### 4. API 동작 방식
+- **API 키 설정 시**: 공공데이터포털에서 실시간 응급실 정보 조회
+- **API 키 미설정 시**: 샘플 데이터 자동 반환 (개발/테스트용)
+
 ## 완료된 기능
 - ✅ 사용자 위치 입력 (GPS 자동 감지 / 수동 입력)
 - ✅ 중증도 선택 (1-10 스케일, 시각적 피드백)
-- ✅ 응급실 데이터 조회 API
+- ✅ 공공데이터포털 API 연동 (실시간 응급실 정보)
+- ✅ 샘플 데이터 폴백 (API 키 미설정 시)
 - ✅ 거리 계산 (Haversine 공식)
 - ✅ 예상 소요시간 계산 (평균 속도 30km/h)
 - ✅ 추천 점수 알고리즘 (중증도별 가중치 적용)
 - ✅ 결과 정렬 및 출력 (순위별 시각적 강조)
 - ✅ 반응형 UI (모바일/데스크톱 대응)
 
-## 미완료 기능
-- ⏳ 실시간 응급실 정보 크롤링
-  - 현재: 샘플 데이터 사용
-  - 계획: https://mediboard.nemc.or.kr/emergency_room_in_hand 사이트 크롤링
-  - 제약: Cloudflare Workers에서 Puppeteer/Playwright 직접 사용 불가
-  - 대안: 외부 크롤링 서비스 연동 또는 공공데이터 API 활용
+## 향후 개선 사항
 - ⏳ 실시간 교통정보 연동
   - 현재: 평균 속도(30km/h) 기반 예상 시간
   - 계획: Google Maps API 또는 카카오내비 API 연동
+- ⏳ 지역 필터링 기능
+  - 시/도 선택으로 특정 지역 응급실만 조회
 - ⏳ 병원 상세정보 및 리뷰
 - ⏳ 즐겨찾기 및 최근 검색 기록
+- ⏳ Cloudflare D1 데이터베이스 캐싱
 
 ## 권장 다음 단계
 1. **실시간 데이터 수집**

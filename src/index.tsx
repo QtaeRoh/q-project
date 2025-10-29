@@ -25,11 +25,84 @@ interface EmergencyRoom {
   score?: number;
 }
 
-// 응급실 실시간 정보 크롤링 API (샘플 데이터)
+// 공공데이터포털 응급의료 API 연동
+// 환경변수에서 API 키 가져오기
+type Bindings = {
+  EMERGENCY_API_KEY?: string;
+}
+
+const app_typed = new Hono<{ Bindings: Bindings }>()
+
+// 응급실 실시간 정보 API
 app.get('/api/emergency-rooms', async (c) => {
-  // TODO: 실제로는 https://mediboard.nemc.or.kr/emergency_room_in_hand 크롤링
-  // 현재는 샘플 데이터 반환
-  const sampleData: EmergencyRoom[] = [
+  const apiKey = c.env?.EMERGENCY_API_KEY;
+  
+  // API 키가 없으면 샘플 데이터 반환
+  if (!apiKey || apiKey === 'YOUR_API_KEY_HERE') {
+    console.log('API 키가 설정되지 않아 샘플 데이터를 반환합니다');
+    return c.json({
+      success: true,
+      data: getSampleData(),
+      dataSource: 'sample',
+      message: 'API 키를 설정하면 실시간 데이터를 사용할 수 있습니다',
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  try {
+    // 공공데이터포털 응급의료기관 정보 조회
+    // 실제 API 엔드포인트는 발급받은 API 키와 함께 사용
+    const apiUrl = `http://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire`;
+    const params = new URLSearchParams({
+      serviceKey: apiKey,
+      numOfRows: '100',
+      pageNo: '1',
+      _type: 'json'
+    });
+
+    const response = await fetch(`${apiUrl}?${params.toString()}`);
+    const data = await response.json();
+
+    // API 응답 처리
+    if (data.response?.header?.resultCode === '00') {
+      const items = data.response.body?.items?.item || [];
+      const emergencyRooms: EmergencyRoom[] = items.map((item: any, index: number) => ({
+        id: item.hpid || `api-${index}`,
+        name: item.dutyName || '정보없음',
+        address: item.dutyAddr || '',
+        latitude: parseFloat(item.wgs84Lat) || 0,
+        longitude: parseFloat(item.wgs84Lon) || 0,
+        availableBeds: parseInt(item.hvec) || 0, // 가용 응급실 병상 수
+        totalBeds: (parseInt(item.hvec) || 0) + (parseInt(item.hvoc) || 0), // 전체 병상
+        phone: item.dutyTel1 || ''
+      }));
+
+      return c.json({
+        success: true,
+        data: emergencyRooms,
+        dataSource: 'api',
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      throw new Error(`API Error: ${data.response?.header?.resultMsg || 'Unknown error'}`);
+    }
+  } catch (error) {
+    console.error('공공데이터 API 호출 실패:', error);
+    // API 실패 시 샘플 데이터 반환
+    return c.json({
+      success: true,
+      data: getSampleData(),
+      dataSource: 'sample',
+      message: 'API 호출 실패로 샘플 데이터를 반환합니다',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// 샘플 데이터 생성 함수
+function getSampleData(): EmergencyRoom[] {
+  return [
     {
       id: '1',
       name: '서울대학교병원',
@@ -81,13 +154,7 @@ app.get('/api/emergency-rooms', async (c) => {
       phone: '02-2019-3000'
     }
   ];
-
-  return c.json({
-    success: true,
-    data: sampleData,
-    timestamp: new Date().toISOString()
-  });
-});
+}
 
 // 추천 알고리즘: 중증도, 가용병상, 거리를 고려한 점수 계산
 function calculateRecommendationScore(
