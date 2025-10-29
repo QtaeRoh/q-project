@@ -222,9 +222,8 @@ app.post('/api/recommend', async (c) => {
     return c.json({ success: false, error: '위치와 중증도 정보가 필요합니다.' }, 400);
   }
 
-  // 응급실 데이터 가져오기
-  const response = await fetch(`${c.req.url.split('/api')[0]}/api/emergency-rooms`);
-  const { data: rooms } = await response.json();
+  // 응급실 데이터 가져오기 (직접 함수 호출)
+  const rooms = getSampleData();
 
   // 각 병원까지의 거리와 예상 시간 계산
   const roomsWithDistance = rooms.map((room: EmergencyRoom) => {
