@@ -232,21 +232,23 @@ wrangler pages secret put EMERGENCY_API_KEY --project-name emergency-room-finder
 - ⏳ Cloudflare D1 데이터베이스 캐싱
 
 ## 권장 다음 단계
-1. **실시간 데이터 수집**
-   - Browserless API 또는 ScrapingBee 같은 서버리스 크롤링 서비스 연동
-   - 또는 공공데이터포털 응급의료정보 API 활용
-   
-2. **교통정보 연동**
+1. **실시간 교통정보 연동**
    - Google Maps Directions API 또는 카카오모빌리티 API 연동
    - 실시간 교통 상황을 반영한 정확한 이동시간 제공
 
-3. **Cloudflare D1 데이터베이스 구축**
+2. **Cloudflare D1 데이터베이스 구축**
    - 응급실 기본정보 영구 저장
-   - 크롤링 데이터 캐싱으로 성능 향상
+   - API 데이터 캐싱으로 성능 향상 (5-10분 단위)
+   - 트래픽 제한 대응
 
-4. **알림 기능**
+3. **지역별 필터링**
+   - 시/도 선택 기능 추가
+   - 사용자 위치 기반 반경 설정 (예: 10km 이내)
+
+4. **알림 및 연결 기능**
    - 선택한 병원으로의 네비게이션 링크 제공
    - 전화 연결 원터치 기능
+   - 병원 도착 예상 시간 알림
 
 ## 배포 상태
 - **플랫폼**: Cloudflare Pages
