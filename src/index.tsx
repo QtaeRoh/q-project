@@ -38,7 +38,7 @@ app.get('/api/emergency-rooms', async (c) => {
   const apiKey = c.env?.EMERGENCY_API_KEY;
   
   // API 키가 없으면 샘플 데이터 반환
-  if (!apiKey || apiKey === 'YOUR_API_KEY_HERE') {
+  if (!apiKey || apiKey === '463e67ea0fb89c7ba0fd28d04878b1a00ef57d6f8750059fb00b837648a37ed6') {
     console.log('API 키가 설정되지 않아 샘플 데이터를 반환합니다');
     return c.json({
       success: true,
@@ -152,6 +152,56 @@ function getSampleData(): EmergencyRoom[] {
       availableBeds: 6,
       totalBeds: 22,
       phone: '02-2019-3000'
+    },
+    {
+      id: '6',
+      name: '고려대학교안암병원',
+      address: '서울특별시 성북구 고려대로 73',
+      latitude: 37.5867,
+      longitude: 127.0263,
+      availableBeds: 4,
+      totalBeds: 18,
+      phone: '02-920-5114'
+    },
+    {
+      id: '7',
+      name: '서울성모병원',
+      address: '서울특별시 서초구 반포대로 222',
+      latitude: 37.5016,
+      longitude: 127.0049,
+      availableBeds: 7,
+      totalBeds: 23,
+      phone: '02-2258-5114'
+    },
+    {
+      id: '8',
+      name: '한양대학교병원',
+      address: '서울특별시 성동구 왕십리로 222',
+      latitude: 37.5592,
+      longitude: 127.0432,
+      availableBeds: 3,
+      totalBeds: 16,
+      phone: '02-2290-8114'
+    },
+    {
+      id: '9',
+      name: '이대서울병원',
+      address: '서울특별시 강서구 공항대로 260',
+      latitude: 37.5579,
+      longitude: 126.8358,
+      availableBeds: 5,
+      totalBeds: 19,
+      phone: '02-6986-1616'
+    },
+    {
+      id: '10',
+      name: '분당서울대병원',
+      address: '경기도 성남시 분당구 구미로 173번길 82',
+      latitude: 37.3500,
+      longitude: 127.1167,
+      availableBeds: 6,
+      totalBeds: 21,
+      phone: '031-787-7114'
     }
   ];
 }
