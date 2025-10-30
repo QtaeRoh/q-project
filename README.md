@@ -214,7 +214,7 @@ wrangler pages secret put EMERGENCY_API_KEY --project-name emergency-room-finder
 - ✅ 사용자 위치 입력 (GPS 자동 감지 / 수동 입력)
 - ✅ 중증도 선택 (1-10 스케일, 시각적 피드백)
 - ✅ 공공데이터포털 API 연동 (실시간 응급실 정보)
-- ✅ 샘플 데이터 폴백 (API 키 미설정 시)
+- ✅ 샘플 데이터 10개 병원 (서울 및 수도권 주요 병원)
 - ✅ 거리 계산 (Haversine 공식)
 - ✅ 예상 소요시간 계산 (평균 속도 30km/h)
 - ✅ 추천 점수 알고리즘 (중증도별 가중치 적용)
